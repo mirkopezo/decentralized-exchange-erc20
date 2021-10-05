@@ -1,8 +1,18 @@
 pragma solidity 0.6.3;
 
 import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol';
+// import SafeMath.sol
+import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/math/SafeMath.sol';
 
 contract Dex {
+    // we will use special keyword 'using'. 'using' basically allows to use a library and attach it to specific type.
+    // If you go to smart contract of SafeMath.sol, you will see couple of functions, first argument for each function
+    // is going to be replaced by number for which we call this 'add' method.
+    // That means inside our smart contract, if we have variable that is called 'a' and it is uint. We will go for
+    // example a.add(2), 'add' function is going to be called with 'a' as first argument and '2' as second argument.
+    // Now we need to replace our all arithmetic operations by calling functions of SafeMath.
+    using SafeMath for uint;
+
     enum Side {
         BUY,
         SELL
@@ -55,13 +65,15 @@ contract Dex {
 
     function deposit(uint amount, bytes32 ticker) tokenExist(ticker) external {
         IERC20(tokens[ticker].tokenAddress).transferFom(msg.sender, address(this), amount);
-        traderBalances[msg.sender][ticker] += amount; 
+        // we change this
+        traderBalances[msg.sender][ticker] = traderBalances[msg.sender][ticker].add(amount); 
         
     }
 
     function withdraw(uint amount, bytes32 ticker) tokenExist(ticker) external {
         require(traderBalances[msg.sender][ticker] >= amount, 'Balance is too low!');
-        traderBalances[msg.sender][ticker] -= amount;
+        // we change this, 'sub' function is for subtraction
+        traderBalances[msg.sender][ticker] = traderBalances[msg.sender][ticker].sub(amount);
         IERC20(tokens[ticker].tokenAddress).transfer(msg.sender, amount);
     }
 
@@ -77,7 +89,8 @@ contract Dex {
         if(side == Side.SELL) {
             require(traderBalances[msg.sender][ticker] >= amount, 'Token balance is too low!');
         } else {
-            require(traderBalances[msg.sender][DAI] >= amount*price, 'DAI balance is too low!');
+            // we change this line
+            require(traderBalances[msg.sender][DAI] >= amount.mul(price), 'DAI balance is too low!');
         }
         Order[] storage orders = orderBook[ticker][uint(side)];
         orders.push(Order(
@@ -90,7 +103,8 @@ contract Dex {
             price,
             now
         ));
-        uint i = orders.length - 1;
+        // we protect here potential underflow problem
+        uint i = (orders.length > 0)? (orders.length - 1) : 0;
         while(i > 0) {
             if(side == Side.BUY && orders[i-1].price > orders[i].price) {
                 break;
@@ -101,9 +115,11 @@ contract Dex {
             Order memory order = orders[i-1];
             orders[i-1] = orders[i];
             orders[i] = order;
-            i--;
+            // this will never be negative but just in case we will protect it
+            i = i.sub(1);
         }
-        nextOrderId++;
+        // we change this line
+        nextOrderId = nextOrderId.add(1);
     }
 
     function createMarketOrder(
@@ -121,10 +137,12 @@ contract Dex {
         uint i;
         uint remaining = amount;
         while(i < orders.length && remaining > 0) {
-            uint available = orders[i].amount - orders[i].filled;
+            // we change this
+            uint available = orders[i].amount.sub(orders[i].filled);
             uint matched = (remaining > available)? available : remaining;
-            remaining -= matched;
-            orders[i].filled += matched;
+            // we change those next 2 lines
+            remaining = remaining.sub(matched);
+            orders[i].filled = orders[i].filled.add(matched);
             emit NewTrade(
                 nextTradeId,
                 orders[i].id,
@@ -136,19 +154,29 @@ contract Dex {
                 now
             );
             if(side == Side.SELL) {
-                traderBalances[msg.sender][ticker] -= matched;
-                traderBalances[msg.sender][DAI] += matched*orders[i].price; 
-                traderBalances[orders[i].trader][ticker] += matched;
-                traderBalances[orders[i].trader][DAI] -= matched*orders[i].price;
+                // we change this all lines in if
+                traderBalances[msg.sender][ticker] = traderBalances[msg.sender][ticker].sub(matched);
+                traderBalances[msg.sender][DAI] = traderBalances[msg.sender][DAI]
+                    .add(matched.mul(orders[i].price)); 
+                traderBalances[orders[i].trader][ticker] = traderBalances[orders[i].trader][ticker]
+                    .add(matched);
+                traderBalances[orders[i].trader][DAI] = traderBalances[orders[i].trader][DAI]
+                    .sub(matched.mul(orders[i].price));
             } else {
-                require(traderBalances[msg.sender][DAI] >= matched*orders[i].price, 'DAI balance is too low!');
-                traderBalances[msg.sender][ticker] += matched;
-                traderBalances[msg.sender][DAI] -= matched*orders[i].price; 
-                traderBalances[orders[i].trader][ticker] -= matched;
-                traderBalances[orders[i].trader][DAI] += matched*orders[i].price;
+                // we change this all lines in else
+                require(traderBalances[msg.sender][DAI] >= matched.mul(orders[i].price), 
+                    'DAI balance is too low!');
+                traderBalances[msg.sender][ticker] = traderBalances[msg.sender][ticker].add(matched);
+                traderBalances[msg.sender][DAI] = traderBalances[msg.sender][DAI]
+                    .sub(matched.mul(orders[i].price)); 
+                traderBalances[orders[i].trader][ticker] = traderBalances[orders[i].trader][ticker]
+                    .sub(matched);
+                traderBalances[orders[i].trader][DAI] = traderBalances[orders[i].trader][DAI]
+                    .add(matched.mul(orders[i].price));
             }
-            nextTradeId++;
-            i++;
+            // we change next 2 lines
+            nextTradeId = nextTradeId.add(1);
+            i = i.add(1);
         }
         i = 0;
         while(i < orders.length && orders[i].filled == orders[i].amount) {
@@ -156,7 +184,8 @@ contract Dex {
                 orders[j] = orders[j + 1];
             }
             orders.pop();
-            i++;
+            // we change this line
+            i = i.add(1);
         }
     }
 
@@ -164,7 +193,7 @@ contract Dex {
         require(ticker != DAI, 'You cannot trade DAI!');
         _;
     }
-    
+
     modifier tokenExist(bytes32 ticker) {
         require(tokens[ticker].tokenAddress != address(0), 'This token does not exist!');
         _;
