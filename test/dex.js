@@ -57,4 +57,38 @@ contract('Dex', (accounts) => {
             'This token does not exist!'
         );
     });
+    it('Should withdraw tokens', async() => {
+        const amount = web3.utils.toWei('100');
+        await dex.deposit(amount, DAI, {from: trader1});
+        await dex.withdraw(amount, DAI, {from: trader1});
+        const [balanceDex, balanceDai] = await Promise.all([
+            dex.traderBalances(trader1, DAI),
+            dai.balanceOf(trader1)
+        ]);
+        assert(balanceDex.isZero());
+        assert(balanceDai.toString() === web3.utils.toWei('1000'));
+    });
+    it('Should not withdraw tokens if token does not exist on DEX', async() => {
+        const amount = web3.utils.toWei('100');
+        await expectRevert(
+            dex.withdraw(
+                amount, 
+                web3.utils.fromAscii('token-not-approved-on-dex'), 
+                {from: trader1}
+            ),
+            'This token does not exist!'
+        );
+    });
+    it('Should not withdraw more tokens than allowed', async() => {
+        const amount = web3.utils.toWei('100');
+        await dex.deposit(amount, DAI, {from: trader1});
+        await expectRevert(
+            dex.withdraw(
+                web3.utils.toWei('110'), 
+                DAI, 
+                {from: trader1}
+            ),
+            'Balance is too low!'
+        );
+    });
 });
