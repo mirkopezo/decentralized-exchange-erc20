@@ -5,4 +5,8 @@ import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contr
 
 contract Bat is ERC20, ERC20Detailed {
     constructor() ERC20Detailed('BAT', 'Basic Attention Token', 18) public {}
+
+    function faucet(address to, uint amount) external {
+        _mint(to, amount);
+    }
 }

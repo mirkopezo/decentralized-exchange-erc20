@@ -5,4 +5,8 @@ import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contr
 
 contract Dai is ERC20, ERC20Detailed {
     constructor() ERC20Detailed('DAI', 'Dai Stablecoin', 18) public {}
+
+    function faucet(address to, uint amount) external {
+        _mint(to, amount);
+    }
 }
