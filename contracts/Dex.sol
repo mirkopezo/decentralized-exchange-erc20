@@ -75,7 +75,6 @@ contract Dex {
     function deposit(uint amount, bytes32 ticker) tokenExist(ticker) external {
         IERC20(tokens[ticker].tokenAddress).transferFrom(msg.sender, address(this), amount);
         traderBalances[msg.sender][ticker] = traderBalances[msg.sender][ticker].add(amount); 
-        
     }
 
     function withdraw(uint amount, bytes32 ticker) tokenExist(ticker) external {
