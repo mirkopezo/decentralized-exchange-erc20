@@ -1,4 +1,5 @@
 pragma solidity 0.6.3;
+pragma experimental ABIEncoderV2;
 
 import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol';
 import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/math/SafeMath.sol';
@@ -49,6 +50,21 @@ contract Dex {
 
     constructor() public {
         admin = msg.sender;
+    }
+
+    function getOrders(bytes32 ticker, Side side) external view returns(Order[] memory) {
+        return orderBook[ticker][uint(side)];
+    }
+
+    function getTokens() external view returns(Token[] memory) {
+        Token[] memory _tokens = new Token[](tokenList.length);
+        for(uint i = 0; i < tokenList.length; i++) {
+            _tokens[i] = Token(
+                tokens[tokenList[i]].ticker,
+                tokens[tokenList[i]].tokenAddress
+            );
+        }
+        return _tokens;
     }
 
     function addToken(bytes32 ticker, address tokenAddress) onlyAdmin() external {
@@ -174,7 +190,7 @@ contract Dex {
         require(ticker != DAI, 'You cannot trade DAI!');
         _;
     }
-    
+
     modifier tokenExist(bytes32 ticker) {
         require(tokens[ticker].tokenAddress != address(0), 'This token does not exist!');
         _;
