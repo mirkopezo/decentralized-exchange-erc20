@@ -1,8 +1,8 @@
 pragma solidity 0.6.3;
 pragma experimental ABIEncoderV2;
 
-import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol';
-import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/math/SafeMath.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/math/SafeMath.sol';
 
 contract Dex {
     using SafeMath for uint;
@@ -73,7 +73,7 @@ contract Dex {
     }
 
     function deposit(uint amount, bytes32 ticker) tokenExist(ticker) external {
-        IERC20(tokens[ticker].tokenAddress).transferFom(msg.sender, address(this), amount);
+        IERC20(tokens[ticker].tokenAddress).transferFrom(msg.sender, address(this), amount);
         traderBalances[msg.sender][ticker] = traderBalances[msg.sender][ticker].add(amount); 
         
     }
