@@ -4,6 +4,10 @@ const Rep = artifacts.require('mocks/Rep.sol');
 const Zrx = artifacts.require('mocks/Zrx.sol');
 const Bat = artifacts.require('mocks/Bat.sol');
 const Dex = artifacts.require('Dex.sol');
+const SIDE = {
+    BUY: 0,
+    SELL: 1
+};
 
 contract('Dex', (accounts) => {
     let dai, rep, zrx, bat, dex;
@@ -91,4 +95,55 @@ contract('Dex', (accounts) => {
             'Balance is too low!'
         );
     });
+    it('Should create limit order', async() => {
+        const amount = web3.utils.toWei('100');
+        await dex.deposit(amount, DAI, {from: trader1});
+        await dex.createLimitOrder(
+            BAT,
+            web3.utils.toWei('20'),
+            5,
+            SIDE.BUY,
+            {from: trader1}
+        );
+        let buyOrders = await dex.getOrders(BAT, SIDE.BUY);
+        let sellOrders = await dex.getOrders(BAT, SIDE.SELL);
+        assert(buyOrders.length === 1);
+        assert(buyOrders[0].trader === trader1);
+        assert(buyOrders[0].ticker === web3.utils.padRight(BAT, 64));
+        assert(buyOrders[0].price === '5');
+        assert(buyOrders[0].amount === web3.utils.toWei('20'));
+        assert(sellOrders.length === 0);
+
+        await dex.deposit(amount, DAI, {from: trader2});
+        await dex.createLimitOrder(
+            BAT,
+            web3.utils.toWei('10'),
+            10,
+            SIDE.BUY,
+            {from: trader2}
+        );
+        buyOrders = await dex.getOrders(BAT, SIDE.BUY);
+        sellOrders = await dex.getOrders(BAT, SIDE.SELL);
+        assert(buyOrders.length === 2);
+        assert(buyOrders[0].trader === trader2);
+        assert(buyOrders[1].trader === trader1);
+        assert(sellOrders.length === 0);
+
+        await dex.deposit(amount, DAI, {from: trader2});
+        await dex.createLimitOrder(
+            BAT,
+            web3.utils.toWei('50'),
+            2,
+            SIDE.BUY,
+            {from: trader2}
+        );
+        buyOrders = await dex.getOrders(BAT, SIDE.BUY);
+        sellOrders = await dex.getOrders(BAT, SIDE.SELL);
+        assert(buyOrders.length === 3);
+        assert(buyOrders[0].trader === trader2);
+        assert(buyOrders[1].trader === trader1);
+        assert(buyOrders[2].trader === trader2);
+        assert(buyOrders[2].price === '2');
+        assert(sellOrders.length === 0); 
+    })
 });
