@@ -12,7 +12,7 @@ const SIDE = {
 contract('Dex', (accounts) => {
     let dai, rep, zrx, bat, dex;
     const [trader1, trader2] = [accounts[1], accounts[2]];
-    const [DAI, REP, ZRX, BAT] = ['DAI', 'BAT', 'REP', 'ZRX']
+    const [DAI, REP, ZRX, BAT] = ['DAI', 'REP', 'ZRX', 'BAT']
         .map(ticker => web3.utils.fromAscii(ticker));
     beforeEach(async() => {
         ([dai, rep, zrx, bat] = await Promise.all([
