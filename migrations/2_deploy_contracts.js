@@ -29,7 +29,7 @@ module.exports = async function(deployer, _network, accounts) {
         await token.faucet(trader, amount);
         await token.approve(dex.address, amount, {from: trader});
         const ticker = await token.name(); 
-        await dex.deposit(amount, web3.utils.toAscii(ticker), {from: trader});
+        await dex.deposit(amount, web3.utils.fromAscii(ticker), {from: trader});
     };
     await Promise.all(
         [dai, rep, zrx, bat].map(
