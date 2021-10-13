@@ -14,7 +14,7 @@ function Header(props) {
                         }))}
                         activeItem={{
                             label: user.selectedToken.ticker,
-                            value: user.selectToken
+                            value: user.selectedToken
                         }}
                         onSelect={selectToken}
                     />
