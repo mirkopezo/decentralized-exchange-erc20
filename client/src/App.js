@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from 'Header';
 import Footer from 'Footer';
-// import Wallet
 import Wallet from 'Wallet';
 
 function App(props) {
@@ -9,7 +8,6 @@ function App(props) {
   const [tokens, setTokens] = useState([]);
   const [user, setUser] = useState({
     accounts: [],
-    // we will have a new entry
     balances : {
       tokenDex: 0,
       tokenWallet: 0
@@ -17,7 +15,6 @@ function App(props) {
     selectedToken: undefined
   });
 
-  // function for getting balance
   const getBalances = async(account, token) => {
     const tokenDex = await contracts.dex.methods
       .traderBalances(account, web3.utils.fromAscii(token.ticker))
@@ -34,29 +31,21 @@ function App(props) {
       selectedToken: token
     });
   }
-  // we will create deposit function
+
   const deposit = async amount => {
-    // we will call deposit function of the dex smart contract, but before
-    // we do this, we need to approve dex smart contract to spend our tokens, and
-    // for that we will use ERC20 smart contract
     await contracts[user.selectedToken.ticker].methods
       .approve(contracts.dex.options.address, amount)
       .send({from: user.accounts[0]});
-    // and now we can call deposit function
     await contracts.dex.methods
       .deposit(amount, web3.utils.fromAscii(user.selectedToken.ticker))
       .send({from: user.accounts[0]});
-    // and now we need to update token balances of the wallet
     const balances = await getBalances(user.accounts[0], user.selectedToken);
-    // we will not overewrite whole object, so we will use callback function to 
-    // update the state
     setUser(user => ({
       ...user,
       balances
     }))
   }
 
-  // now we will create wirthdraw function, it will be very similar to deposit function
   const withdraw = async amount => {
     await contracts.dex.methods
       .withdraw(amount, web3.utils.fromAscii(user.selectedToken.ticker))
@@ -68,7 +57,6 @@ function App(props) {
     }))
   }
 
-
   useEffect(() => {
     const init = async() => {
       const rawTokens = await contracts.dex.methods.getTokens().call();
@@ -76,10 +64,8 @@ function App(props) {
         ...token,
         ticker: web3.utils.hexToUtf8(token.ticker)
       }));
-      // when component initially loads, we need to populate balances of token
       const balances = await getBalances(accounts[0], tokens[0]);
       setTokens(tokens);
-      // when we set user object we will also include balances
       setUser({accounts, balances, selectedToken: tokens[0]});
     }
     init();
