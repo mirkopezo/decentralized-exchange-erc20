@@ -3,6 +3,7 @@ import Header from 'Header';
 import Footer from 'Footer';
 import Wallet from 'Wallet';
 import NewOrder from 'NewOrder';
+import AllOrders from 'AllOrders';
 
 const SIDE = {
   BUY: 0,
@@ -20,6 +21,10 @@ function App(props) {
     },
     selectedToken: undefined
   });
+  const [orders, setOrders] = useState({
+    buy: [],
+    sell: []
+  });
 
   const getBalances = async(account, token) => {
     const tokenDex = await contracts.dex.methods
@@ -29,6 +34,16 @@ function App(props) {
       .balanceOf(account)
       .call();
     return {tokenDex, tokenWallet};    
+  }
+
+  const getOrders = async token => {
+    const orders = await Promise.all([
+      contracts.dex.methods.getOrders(web3.utils.fromAscii(token.ticker), SIDE.BUY)
+        .call(),
+      contracts.dex.methods.getOrders(web3.utils.fromAscii(token.ticker), SIDE.SELL)
+        .call()
+    ]);
+    return {buy: orders[0], sell: orders[1]};
   }
 
   const selectToken = token => {
@@ -70,6 +85,8 @@ function App(props) {
         side
       )
       .send({from: user.accounts[0]});
+    const orders = await getOrders(user.selectedToken);
+    setOrders(orders);
   }
 
   const createLimitOrder = async(amount, price, side) => {
@@ -80,6 +97,8 @@ function App(props) {
         side
       )
       .send({from: user.accounts[0]});
+    const orders = await getOrders(user.selectedToken);
+    setOrders(orders);
   }
 
   useEffect(() => {
@@ -89,12 +108,30 @@ function App(props) {
         ...token,
         ticker: web3.utils.hexToUtf8(token.ticker)
       }));
-      const balances = await getBalances(accounts[0], tokens[0]);
+      const [balances, orders] = await Promise.all([
+        getBalances(accounts[0], tokens[0]),
+        getOrders(tokens[0])
+      ]);
       setTokens(tokens);
       setUser({accounts, balances, selectedToken: tokens[0]});
+      setOrders(orders);
     }
     init();
   }, []);
+
+  useEffect(() => {
+    const init = async() => {
+      const [balances, orders] = await Promise.all([
+        getBalances(accounts[0], user.selectedToken),
+        getOrders(user.selectedToken)
+      ]);
+      setUser(user => ({...user, balances}));
+      setOrders(orders);
+    }
+    if(typeof user.selectedToken !== 'undefined') {
+      init();
+    }
+  }, [user.selectedToken]);
   
   if(typeof user.selectedToken === 'undefined') {
     return(
@@ -126,6 +163,13 @@ function App(props) {
             ) : null
             }
           </div>
+          {user.selectedToken.ticker !== 'DAI' ? (
+            <div className="col-sm-8">
+              <AllOrders
+                orders={orders} 
+              />
+            </div>
+          ) : null}
         </div>
       </main>
       <Footer />
