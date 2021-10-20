@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Header from 'Header';
 import Footer from 'Footer';
 import Wallet from 'Wallet';
+import NewOrder from 'NewOrder';
+
+const SIDE = {
+  BUY: 0,
+  SELL: 1
+}
 
 function App(props) {
   const { web3, accounts, contracts } = props;
@@ -57,6 +63,25 @@ function App(props) {
     }))
   }
 
+  const createMarketOrder = async(amount, side) => {
+    await contracts.dex.methods.createMarketOrder(
+        web3.utils.fromAscii(user.selectedToken.ticker),
+        amount,
+        side
+      )
+      .send({from: user.accounts[0]});
+  }
+
+  const createLimitOrder = async(amount, price, side) => {
+    await contracts.dex.methods.createLimitOrder(
+        web3.utils.fromAscii(user.selectedToken.ticker),
+        amount,
+        price,
+        side
+      )
+      .send({from: user.accounts[0]});
+  }
+
   useEffect(() => {
     const init = async() => {
       const rawTokens = await contracts.dex.methods.getTokens().call();
@@ -93,6 +118,13 @@ function App(props) {
               deposit={deposit}
               withdraw={withdraw} 
             />
+            {user.selectedToken.ticker !== 'DAI' ? (
+              <NewOrder
+                createMarketOrder={createMarketOrder}
+                createLimitOrder={createLimitOrder} 
+              />
+            ) : null
+            }
           </div>
         </div>
       </main>
