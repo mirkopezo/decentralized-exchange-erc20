@@ -4,6 +4,7 @@ import Footer from 'Footer';
 import Wallet from 'Wallet';
 import NewOrder from 'NewOrder';
 import AllOrders from 'AllOrders';
+import MyOrders from 'MyOrders';
 
 const SIDE = {
   BUY: 0,
@@ -138,7 +139,7 @@ function App(props) {
       <div>Loading...</div>
     );
   }
-  
+
   return (
     <div id="app">
       <Header
@@ -167,6 +168,16 @@ function App(props) {
             <div className="col-sm-8">
               <AllOrders
                 orders={orders} 
+              />
+              <MyOrders
+                orders={{
+                  buy: orders.buy.filter(
+                    order => order.trader.toLowerCase() === user.accounts[0].toLowerCase()
+                  ),
+                  sell: orders.sell.filter(
+                    order => order.trader.toLowerCase() === user.accounts[0].toLowerCase()
+                  )
+                }} 
               />
             </div>
           ) : null}
