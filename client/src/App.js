@@ -163,7 +163,7 @@ function App(props) {
   }
 
   return (
-    <div id="app">
+    <div id="app" style={{overflowX: 'hidden'}}>
       <Header
         contracts={contracts} 
         tokens={tokens}
