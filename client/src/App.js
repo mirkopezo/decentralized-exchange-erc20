@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Header from 'Header';
-import Footer from 'Footer';
-import Wallet from 'Wallet';
-import NewOrder from 'NewOrder';
-import AllOrders from 'AllOrders';
-import MyOrders from 'MyOrders';
-import AllTrades from 'AllTrades';
+import Header from 'components/Header';
+import Footer from 'components/Footer';
+import Wallet from 'components/Wallet';
+import NewOrder from 'components/NewOrder';
+import AllOrders from 'components/AllOrders';
+import MyOrders from 'components/MyOrders';
+import AllTrades from 'components/AllTrades';
 
 const SIDE = {
   BUY: 0,

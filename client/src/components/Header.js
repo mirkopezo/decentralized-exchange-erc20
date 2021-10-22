@@ -1,5 +1,5 @@
 import React from 'react';
-import Dropdown from 'Dropdown';
+import Dropdown from 'components/Dropdown';
 
 function Header(props) {
     const { user, tokens, contracts, selectToken } = props;
