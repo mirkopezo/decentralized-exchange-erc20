@@ -1,10 +1,9 @@
-pragma solidity 0.6.3;
+pragma solidity 0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol';
 
-contract Zrx is ERC20, ERC20Detailed {
-    constructor() ERC20Detailed('0x token', 'ZRX', 18) public {}
+contract Zrx is ERC20 {
+    constructor() ERC20('0x token', 'ZRX') {}
 
     function faucet(address to, uint amount) external {
         _mint(to, amount);

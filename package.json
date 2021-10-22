@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/mirkopezo/decentralized-exchange-erc20#readme",
   "dependencies": {
-    "@openzeppelin/contracts": "^3.0.0-beta.0",
+    "@openzeppelin/contracts": "^4.3.2",
     "@openzeppelin/test-helpers": "^0.5.15"
   }
 }
