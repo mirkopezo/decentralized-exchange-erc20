@@ -32122,6 +32122,68 @@
     "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
   },
   "networks": {
+    "4": {
+      "events": {
+        "0xdb0c486e680ba8026643e6a85f8d157b5e7bcd4b32b54d564542570a9eb20416": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "tradeId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "orderId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "ticker",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "trader1",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "trader2",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "date",
+              "type": "uint256"
+            }
+          ],
+          "name": "NewTrade",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xB45c2f1AA9AD758cD4c7237E9932c586c8dBfc04",
+      "transactionHash": "0xf66616ec235b338ec70249e0387f76f56a6570e5fa6e0b294a769b68e470a4e6"
+    },
     "5777": {
       "events": {
         "0xdb0c486e680ba8026643e6a85f8d157b5e7bcd4b32b54d564542570a9eb20416": {
@@ -32186,7 +32248,7 @@
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-10-22T10:50:46.968Z",
+  "updatedAt": "2021-10-22T15:50:53.912Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

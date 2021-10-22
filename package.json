@@ -22,6 +22,7 @@
   "homepage": "https://github.com/mirkopezo/decentralized-exchange-erc20#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.2",
-    "@openzeppelin/test-helpers": "^0.5.15"
+    "@openzeppelin/test-helpers": "^0.5.15",
+    "@truffle/hdwallet-provider": "^1.5.1"
   }
 }
