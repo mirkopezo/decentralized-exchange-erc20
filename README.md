@@ -26,8 +26,7 @@
 
     ```sh
     $ git clone https://github.com/mirkopezo/decentralized-exchange-erc20.git
-    $ cd decentralized-exchange-erc20
-    $ cd client
+    $ cd decentralized-exchange-erc20/client
     ```
 
 2. Install Dependencies
